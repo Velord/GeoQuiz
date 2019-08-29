@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     tools:context=".MainActivity">
-
 
     <TextView
         android:id="@+id/question_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
         android:padding="24dp"
+        android:layout_gravity="center_horizontal"
         tools:text="@string/question_australia"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
         android:splitMotionEvents="false"
-        android:orientation="horizontal">
+        android:layout_gravity="center_vertical|center_horizontal">
 
         <Button
             android:id="@+id/false_button"
@@ -40,13 +35,14 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_gravity="bottom|center_horizontal|center_vertical">
 
         <ImageButton
             android:id="@+id/prev_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/arrow_left"
+            android:layout_gravity="bottom|start"
             android:contentDescription="@string/prev_button"/>
 
         <ImageButton
@@ -54,7 +50,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/arrow_right"
+            android:layout_gravity="bottom|end"
             android:contentDescription="@string/next_button"/>
 
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>
