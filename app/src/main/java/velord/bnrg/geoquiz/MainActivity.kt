@@ -9,9 +9,11 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 
 
 private const val TAG = "MainActivity"
+private const val KEY_INDEX = "index"
 
 class MainActivity : AppCompatActivity() {
 
@@ -21,32 +23,29 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true),
-        Question(R.string.question_oceans, true),
-        Question(R.string.question_mideast, false),
-        Question(R.string.question_africa, false),
-        Question(R.string.question_americas, true),
-        Question(R.string.question_asia, true)
-    )
+    private val quizViewModel by lazy {
+        ViewModelProviders.of(this).get(QuizViewModel::class.java)
+    }
 
-    private val userAnswerMap = mutableMapOf<Question, Byte>()
-
-
-    private val indexComputer = IndexComputer(0, questionBank.lastIndex, 0)
+    private val setAnotherQuestionTextView: (Direction, Int) -> Unit = { direction, step ->
+        //get index
+        val newIndex = quizViewModel.indexComputer.compute(direction, step)
+        //get resource id
+        val questionTextResId = quizViewModel.questionBank[newIndex].textResId
+        questionTextView.setText(questionTextResId)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
-
+        Log.d(TAG, "onCreate(Bundle?) called")
+        //init views
         trueButton = findViewById(R.id.true_button)
         falseButoon = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
-
-
+        //init views event
         falseButoon.setOnClickListener { view: View ->
             checkAnswer(false)
         }
@@ -56,18 +55,27 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener { _ ->
-            setAnotherQuestionTextView(indexComputer.next())
+            setAnotherQuestionTextView(Direction.NEXT, 1)
         }
 
         prevButton.setOnClickListener { _ ->
-            setAnotherQuestionTextView(indexComputer.prev())
+            setAnotherQuestionTextView(Direction.PREV, 1)
         }
 
         questionTextView.setOnClickListener { _ ->
-            setAnotherQuestionTextView(indexComputer.next())
+            setAnotherQuestionTextView(Direction.NEXT, 1)
         }
-
-        setAnotherQuestionTextView(indexComputer.currentIndex)
+        //init ViewModel
+        val quizViewModel = ViewModelProviders.of(this)
+            .get(QuizViewModel::class.java)
+        Log.d(TAG, "Got a QuizViewModel: $quizViewModel")
+        //get index for question from saved instance state if exist and set it to ViewModel
+        (savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0).apply {
+            if (this != 0)
+                quizViewModel.setQuestionIndex(this)
+        }
+        //set question to TextView
+        setAnotherQuestionTextView(Direction.NEXT, 0)
     }
 
     override fun onStart() {
@@ -95,34 +103,16 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onDestroy() called")
     }
 
-    private val setAnotherQuestionTextView: (Int) -> Unit = { index ->
-        val questionTextResId = questionBank[index].textResId
-        questionTextView.setText(questionTextResId)
-    }
-
-    private fun checkAnswer(userAnswer: Boolean) {
-
-        val correctAnswer = questionBank[indexComputer.currentIndex].answer
-
-        val messageResId =
-            if (correctAnswer == userAnswer) {
-                setUserAnswer(1)
-                R.string.correct_toast
-            }
-            else {
-                setUserAnswer(0)
-                R.string.incorrect_toast
-            }
-
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).apply {
-            setGravity(Gravity.BOTTOM, 0, 120)
-            show()
-        }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        Log.i(TAG, "onSaveInstanceState")
+        outState.putInt(KEY_INDEX,
+            quizViewModel.indexComputer.currentIndex)
     }
 
     private fun informUserScore() {
-        if (userAnswerMap.size == questionBank.size) {
-            val msg = userAnswerMap.values.sum() * (100 / questionBank.size)
+        if (quizViewModel.userAnswerMap.size == quizViewModel.questionBank.size) {
+            val msg = quizViewModel.computeUserScoreInPercent()
             Toast.makeText(this, "Your score is: $msg %", Toast.LENGTH_LONG).apply {
                 setGravity(Gravity.TOP, 0, 150)
                 show()
@@ -130,13 +120,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setUserAnswer(value: Byte) {
-        if (!userAnswerMap.containsKey(questionBank[indexComputer.currentIndex])) {
-            userAnswerMap += (questionBank[indexComputer.currentIndex] to value)
-            informUserScore()
-        } else {
-            userAnswerMap[questionBank[indexComputer.currentIndex]] = value
-            informUserScore()
+    private fun checkAnswer(userAnswer: Boolean) {
+        val messageResId = quizViewModel.isCorrectAnswer(userAnswer)
+        informUserScore()
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).apply {
+            setGravity(Gravity.BOTTOM, 0, 120)
+            show()
         }
     }
 }

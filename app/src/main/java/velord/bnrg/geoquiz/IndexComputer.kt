@@ -19,8 +19,16 @@ class IndexComputer(private val start: Int = 0,
         currentIndex
     }
 
-    fun next(step: Int = 1): Int = fNext(step)
-
-    fun prev(step: Int = 1): Int = fPrev(step)
+    fun compute(direction: Direction, step: Int = 1) =
+        when(direction) {
+            Direction.NEXT -> fNext(step)
+            Direction.PREV -> fPrev(step)
+            else -> throw IllegalArgumentException()
+        }
 
 }
+
+enum class Direction {
+    NEXT, PREV
+}
+
