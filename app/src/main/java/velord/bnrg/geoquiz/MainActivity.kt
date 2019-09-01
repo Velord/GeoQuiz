@@ -32,8 +32,8 @@ class MainActivity : AppCompatActivity() {
 
     private val userAnswerMap = mutableMapOf<Question, Byte>()
 
-    private var currentIndex = 0
 
+    private val indexComputer = IndexComputer(0, questionBank.lastIndex, 0)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,44 +56,53 @@ class MainActivity : AppCompatActivity() {
         }
 
         nextButton.setOnClickListener { _ ->
-            setNextQuestionTextView()
+            setAnotherQuestionTextView(indexComputer.next())
         }
 
         prevButton.setOnClickListener { _ ->
-            setPreviousQuestionTextView()
+            setAnotherQuestionTextView(indexComputer.prev())
         }
 
         questionTextView.setOnClickListener { _ ->
-            setNextQuestionTextView()
+            setAnotherQuestionTextView(indexComputer.next())
         }
 
-        setQuestionTextView()
+        setAnotherQuestionTextView(indexComputer.currentIndex)
     }
 
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart() called")
     }
+
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
     }
+
     override fun onPause() {
         super.onPause()
         Log.d(TAG, "onPause() called")
     }
+
     override fun onStop() {
         super.onStop()
         Log.d(TAG, "onStop() called")
     }
+
     override fun onDestroy() {
         super.onDestroy()
         Log.d(TAG, "onDestroy() called")
     }
 
+    private val setAnotherQuestionTextView: (Int) -> Unit = { index ->
+        val questionTextResId = questionBank[index].textResId
+        questionTextView.setText(questionTextResId)
+    }
+
     private fun checkAnswer(userAnswer: Boolean) {
 
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = questionBank[indexComputer.currentIndex].answer
 
         val messageResId =
             if (correctAnswer == userAnswer) {
@@ -111,33 +120,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun computeCurrentIndex(value: Int) {
-        if (currentIndex == 0 && value < 0)
-            currentIndex = questionBank.size - 1
-        else
-            currentIndex = (currentIndex + value) % questionBank.size
-    }
-
-    private fun setAnotherQuestionTextView(value: Int) {
-        computeCurrentIndex(value)
-        setQuestionTextView()
-    }
-
-    private val setPreviousQuestionTextView: () ->  Unit = {
-        setAnotherQuestionTextView(-1)
-    }
-
-
-    private val setNextQuestionTextView: () ->  Unit = {
-        setAnotherQuestionTextView(1)
-    }
-
-
-    private fun setQuestionTextView(){
-        val questionTextResId = questionBank[currentIndex].textResId
-        questionTextView.setText(questionTextResId)
-    }
-
     private fun informUserScore() {
         if (userAnswerMap.size == questionBank.size) {
             val msg = userAnswerMap.values.sum() * (100 / questionBank.size)
@@ -149,11 +131,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUserAnswer(value: Byte) {
-        if (!userAnswerMap.containsKey(questionBank[currentIndex])) {
-            userAnswerMap += (questionBank[currentIndex] to value)
+        if (!userAnswerMap.containsKey(questionBank[indexComputer.currentIndex])) {
+            userAnswerMap += (questionBank[indexComputer.currentIndex] to value)
             informUserScore()
         } else {
-            userAnswerMap[questionBank[currentIndex]] = value
+            userAnswerMap[questionBank[indexComputer.currentIndex]] = value
             informUserScore()
         }
     }
