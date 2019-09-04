@@ -1,20 +1,10 @@
 package velord.bnrg.geoquiz
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 
 private const val TAG =  "QuizViewModel"
 
 class QuizViewModel : ViewModel() {
-
-    init {
-        Log.d(TAG, "ViewModel instance created")
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d(TAG, "ViewModel instance about to destroyed")
-    }
 
     val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -30,7 +20,7 @@ class QuizViewModel : ViewModel() {
     val userAnswerMap = mutableMapOf<Question, Byte>()
 
     fun setQuestionIndex(index: Int) {
-        if (index != indexComputer.currentIndex)
+        if ((index > -1) && (index != indexComputer.currentIndex))
             indexComputer.currentIndex = index
     }
 
@@ -59,5 +49,4 @@ class QuizViewModel : ViewModel() {
             R.string.incorrect_toast
         }
     }
-
 }

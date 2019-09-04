@@ -18,7 +18,7 @@ private const val KEY_INDEX = "index"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var trueButton: Button
-    private lateinit var falseButoon: Button
+    private lateinit var falseButton: Button
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
     }
 
-    private val setAnotherQuestionTextView: (Direction, Int) -> Unit = { direction, step ->
+    private val updateQuestionTextView: (Direction, Int) -> Unit = { direction, step ->
         //get index
         val newIndex = quizViewModel.indexComputer.compute(direction, step)
         //get resource id
@@ -41,12 +41,12 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onCreate(Bundle?) called")
         //init views
         trueButton = findViewById(R.id.true_button)
-        falseButoon = findViewById(R.id.false_button)
+        falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
         //init views event
-        falseButoon.setOnClickListener { view: View ->
+        falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
         }
 
@@ -54,16 +54,16 @@ class MainActivity : AppCompatActivity() {
             checkAnswer(true)
         }
 
-        nextButton.setOnClickListener { _ ->
-            setAnotherQuestionTextView(Direction.NEXT, 1)
+        nextButton.setOnClickListener {
+            updateQuestionTextView(Direction.NEXT, 1)
         }
 
-        prevButton.setOnClickListener { _ ->
-            setAnotherQuestionTextView(Direction.PREV, 1)
+        prevButton.setOnClickListener {
+            updateQuestionTextView(Direction.PREV, 1)
         }
 
-        questionTextView.setOnClickListener { _ ->
-            setAnotherQuestionTextView(Direction.NEXT, 1)
+        questionTextView.setOnClickListener {
+            updateQuestionTextView(Direction.NEXT, 1)
         }
         //init ViewModel
         val quizViewModel = ViewModelProviders.of(this)
@@ -75,7 +75,7 @@ class MainActivity : AppCompatActivity() {
                 quizViewModel.setQuestionIndex(this)
         }
         //set question to TextView
-        setAnotherQuestionTextView(Direction.NEXT, 0)
+        updateQuestionTextView(Direction.NEXT, 0)
     }
 
     override fun onStart() {

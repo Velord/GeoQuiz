@@ -33,4 +33,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     //VM
     implementation 'androidx.lifecycle:lifecycle-extensions:2.0.0'
+    //reflection
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    //test
+    testImplementation 'io.kotlintest:kotlintest-runner-junit5:3.3.2'
 }

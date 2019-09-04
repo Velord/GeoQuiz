@@ -2,7 +2,7 @@ package velord.bnrg.geoquiz
 
 class IndexComputer(private val start: Int = 0,
                     private val end: Int,
-                    var currentIndex : Int = 0) {
+                    var currentIndex : Int = start) {
 
     private val size = end + 1
 
@@ -12,10 +12,9 @@ class IndexComputer(private val start: Int = 0,
     }
 
     private val fPrev = { step: Int ->
-
         currentIndex = (currentIndex - step) % size
         if (currentIndex < 0)
-            currentIndex = size + currentIndex
+            currentIndex += size
         currentIndex
     }
 
