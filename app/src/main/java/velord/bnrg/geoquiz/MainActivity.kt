@@ -1,5 +1,7 @@
 package velord.bnrg.geoquiz
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -14,11 +16,13 @@ import androidx.lifecycle.ViewModelProviders
 
 private const val TAG = "MainActivity"
 private const val KEY_INDEX = "index"
+private const val REQUEST_CODE_CHEAT = 0
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var trueButton: Button
     private lateinit var falseButton: Button
+    private lateinit var cheatButton: Button
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
@@ -42,6 +46,7 @@ class MainActivity : AppCompatActivity() {
         //init views
         trueButton = findViewById(R.id.true_button)
         falseButton = findViewById(R.id.false_button)
+        cheatButton = findViewById(R.id.cheat_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         questionTextView = findViewById(R.id.question_text_view)
@@ -49,11 +54,15 @@ class MainActivity : AppCompatActivity() {
         falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
         }
-
         trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
         }
-
+        cheatButton.setOnClickListener {
+            val answerIsTrue = quizViewModel.questionBank[
+                    quizViewModel.indexComputer.currentIndex].answer
+            val intent = CheatActivity.newIntent(this, answerIsTrue)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+        }
         nextButton.setOnClickListener {
             updateQuestionTextView(Direction.NEXT, 1)
         }
@@ -108,6 +117,17 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "onSaveInstanceState")
         outState.putInt(KEY_INDEX,
             quizViewModel.indexComputer.currentIndex)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK)
+            return
+
+        if (requestCode == REQUEST_CODE_CHEAT)
+            quizViewModel.isCheater =
+                data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
     }
 
     private fun informUserScore() {
