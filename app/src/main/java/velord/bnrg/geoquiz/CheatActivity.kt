@@ -3,6 +3,7 @@ package velord.bnrg.geoquiz
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -20,6 +21,7 @@ class CheatActivity : AppCompatActivity() {
 
     private lateinit var answerTextView: TextView
     private lateinit var showAnswerButton: Button
+    private lateinit var apiLevelTextView: TextView
 
     private val cheatViewModel by lazy {
         ViewModelProviders.of(this).get(CheatViewModel::class.java)
@@ -33,6 +35,9 @@ class CheatActivity : AppCompatActivity() {
 
         answerTextView = findViewById(R.id.answer_text_view)
         showAnswerButton = findViewById(R.id.show_answer_button)
+        apiLevelTextView = findViewById(R.id.api_level_textView)
+
+        showApiLevel()
 
         showAnswerButton.setOnClickListener {
             answerTextViewSetText()
@@ -75,6 +80,10 @@ class CheatActivity : AppCompatActivity() {
         }
         answerTextView.setText(answerText)
         setAnswerShownResult(true)
+    }
+
+    private val showApiLevel = {
+        apiLevelTextView.setText("API Level ${Build.VERSION.SDK_INT}")
     }
 
     private fun setAnswerShownResult(isAnswerShown: Boolean) {

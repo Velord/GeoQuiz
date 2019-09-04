@@ -1,7 +1,9 @@
 package velord.bnrg.geoquiz
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -12,6 +14,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
+import velord.bnrg.geoquiz.Cheat.canCheat
+import velord.bnrg.geoquiz.Cheat.isCheater
 
 
 private const val TAG = "MainActivity"
@@ -26,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var questionTextView: TextView
+    private lateinit var cheatTokenTextView: TextView
 
     private val quizViewModel by lazy {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
@@ -44,36 +49,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         Log.d(TAG, "onCreate(Bundle?) called")
         //init views
-        trueButton = findViewById(R.id.true_button)
-        falseButton = findViewById(R.id.false_button)
-        cheatButton = findViewById(R.id.cheat_button)
-        nextButton = findViewById(R.id.next_button)
-        prevButton = findViewById(R.id.prev_button)
-        questionTextView = findViewById(R.id.question_text_view)
+        findAllViewsById()
         //init views event
-        falseButton.setOnClickListener { view: View ->
-            checkAnswer(false)
-        }
-        trueButton.setOnClickListener { view: View ->
-            checkAnswer(true)
-        }
-        cheatButton.setOnClickListener {
-            val answerIsTrue = quizViewModel.questionBank[
-                    quizViewModel.indexComputer.currentIndex].answer
-            val intent = CheatActivity.newIntent(this, answerIsTrue)
-            startActivityForResult(intent, REQUEST_CODE_CHEAT)
-        }
-        nextButton.setOnClickListener {
-            updateQuestionTextView(Direction.NEXT, 1)
-        }
-
-        prevButton.setOnClickListener {
-            updateQuestionTextView(Direction.PREV, 1)
-        }
-
-        questionTextView.setOnClickListener {
-            updateQuestionTextView(Direction.NEXT, 1)
-        }
+        initAllViewsEvent()
         //init ViewModel
         val quizViewModel = ViewModelProviders.of(this)
             .get(QuizViewModel::class.java)
@@ -125,12 +103,70 @@ class MainActivity : AppCompatActivity() {
         if (resultCode != Activity.RESULT_OK)
             return
 
-        if (requestCode == REQUEST_CODE_CHEAT)
-            quizViewModel.isCheater =
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            isCheater =
                 data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+
+            if (isCheater) {
+                --Cheat.countCheatToken
+                updateCheatTokenTextView()
+            }
+
+            if (!canCheat()) {
+                cheatButton.isEnabled = false
+            }
+        }
     }
 
-    private fun informUserScore() {
+    private val initAllViewsEvent = {
+        falseButton.setOnClickListener { view: View ->
+            checkAnswer(false)
+        }
+        trueButton.setOnClickListener { view: View ->
+            checkAnswer(true)
+        }
+        cheatButton.setOnClickListener {view ->
+            val answerIsTrue = quizViewModel.questionBank[
+                    quizViewModel.indexComputer.currentIndex].answer
+            val intent = CheatActivity.newIntent(this, answerIsTrue)
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val option = ActivityOptions
+                    .makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+                startActivityForResult(intent, REQUEST_CODE_CHEAT, option.toBundle())
+            } else
+                startActivityForResult(intent, REQUEST_CODE_CHEAT)
+        }
+        nextButton.setOnClickListener {
+            updateQuestionTextView(Direction.NEXT, 1)
+        }
+
+        prevButton.setOnClickListener {
+            updateQuestionTextView(Direction.PREV, 1)
+        }
+
+        questionTextView.setOnClickListener {
+            updateQuestionTextView(Direction.NEXT, 1)
+        }
+
+        updateCheatTokenTextView()
+    }
+
+    private val updateCheatTokenTextView = {
+        cheatTokenTextView.setText("You have cheat: ${Cheat.countCheatToken}")
+    }
+
+    private val findAllViewsById = {
+        trueButton = findViewById(R.id.true_button)
+        falseButton = findViewById(R.id.false_button)
+        cheatButton = findViewById(R.id.cheat_button)
+        nextButton = findViewById(R.id.next_button)
+        prevButton = findViewById(R.id.prev_button)
+        questionTextView = findViewById(R.id.question_text_view)
+        cheatTokenTextView = findViewById(R.id.cheat_token_textView)
+    }
+
+    private val informUserScore = {
         if (quizViewModel.userAnswerMap.size == quizViewModel.questionBank.size) {
             val msg = quizViewModel.computeUserScoreInPercent()
             Toast.makeText(this, "Your score is: $msg %", Toast.LENGTH_LONG).apply {

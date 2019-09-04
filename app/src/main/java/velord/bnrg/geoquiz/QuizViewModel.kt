@@ -1,6 +1,7 @@
 package velord.bnrg.geoquiz
 
 import androidx.lifecycle.ViewModel
+import velord.bnrg.geoquiz.Cheat.isCheater
 
 private const val TAG =  "QuizViewModel"
 
@@ -19,8 +20,6 @@ class QuizViewModel : ViewModel() {
 
     val userAnswerMap
             = mutableMapOf<Question, Pair<Byte, Boolean>>()
-
-    var isCheater = false
 
     fun setQuestionIndex(index: Int) {
         if ((index > -1) && (index != indexComputer.currentIndex))

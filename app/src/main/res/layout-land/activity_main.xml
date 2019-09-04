@@ -32,6 +32,14 @@
             android:text="@string/true_button" />
     </LinearLayout>
 
+    <TextView
+        android:layout_marginTop="14dp"
+        android:id="@+id/cheat_token_textView"
+        android:layout_gravity="center|end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
     <Button
         android:id="@+id/cheat_button"
         android:layout_width="wrap_content"
