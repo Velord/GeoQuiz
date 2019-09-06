@@ -3,6 +3,8 @@ package velord.bnrg.geoquiz
 import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.StringSpec
+import velord.bnrg.geoquiz.model.Direction
+import velord.bnrg.geoquiz.model.IndexComputer
 
 class IndexComputerTest: StringSpec() {
 

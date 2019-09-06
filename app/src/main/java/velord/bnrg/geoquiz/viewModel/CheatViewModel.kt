@@ -1,4 +1,4 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.viewModel
 
 import androidx.lifecycle.ViewModel
 

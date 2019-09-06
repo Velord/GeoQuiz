@@ -3,10 +3,11 @@ package velord.bnrg.geoquiz
 import io.kotlintest.properties.Gen
 import io.kotlintest.properties.forAll
 import io.kotlintest.specs.StringSpec
+import velord.bnrg.geoquiz.viewModel.QuizViewModel
 
 class QuizViewModelTests: StringSpec() {
 
-    private val viewModel =  QuizViewModel()
+    private val viewModel = QuizViewModel()
 
     init {
         "setQuestionIndex" {
@@ -32,7 +33,9 @@ class QuizViewModelTests: StringSpec() {
 
         "computeUserScoreInPercent" {
             viewModel.computeUserScoreInPercent() ==
-                    viewModel.userAnswerMap.values.sum() * (100 / viewModel.questionBank.size)
+                    viewModel.userAnswer.values.fold(0) { f: Int , n: Pair<Byte, Boolean> ->
+                        if (n.second) f + 1 else f
+                    } * (100 / viewModel.questionBank.size)
         }
     }
 }

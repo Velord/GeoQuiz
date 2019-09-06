@@ -1,4 +1,4 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.model
 
 import androidx.annotation.StringRes
 

@@ -1,4 +1,4 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.model
 
 class IndexComputer(private val start: Int = 0,
                     private val end: Int,
@@ -22,7 +22,6 @@ class IndexComputer(private val start: Int = 0,
         when(direction) {
             Direction.NEXT -> fNext(step)
             Direction.PREV -> fPrev(step)
-            else -> throw IllegalArgumentException()
         }
 
 }

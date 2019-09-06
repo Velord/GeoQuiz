@@ -1,7 +1,10 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.viewModel
 
 import androidx.lifecycle.ViewModel
-import velord.bnrg.geoquiz.Cheat.isCheater
+import velord.bnrg.geoquiz.R
+import velord.bnrg.geoquiz.model.Cheat.isCheater
+import velord.bnrg.geoquiz.model.IndexComputer
+import velord.bnrg.geoquiz.model.Question
 
 private const val TAG =  "QuizViewModel"
 
@@ -18,7 +21,7 @@ class QuizViewModel : ViewModel() {
 
     val indexComputer = IndexComputer(0, questionBank.lastIndex, 0)
 
-    val userAnswerMap
+    val userAnswer
             = mutableMapOf<Question, Pair<Byte, Boolean>>()
 
     fun setQuestionIndex(index: Int) {
@@ -27,21 +30,21 @@ class QuizViewModel : ViewModel() {
     }
 
     private fun setUserAnswer(value: Byte, isCheat: Boolean) {
-        if (!userAnswerMap.containsKey(questionBank[indexComputer.currentIndex])) {
-            userAnswerMap += (questionBank[indexComputer.currentIndex]
+        if (!userAnswer.containsKey(questionBank[indexComputer.currentIndex])) {
+            userAnswer += (questionBank[indexComputer.currentIndex]
                     to (value to isCheat ))
         } else {
-            userAnswerMap[questionBank[indexComputer.currentIndex]] = (value to isCheat)
+            userAnswer[questionBank[indexComputer.currentIndex]] = (value to isCheat)
         }
     }
 
     fun computeUserScoreInPercent(): Int =
-        userAnswerMap.values.fold(0) { f: Int , n: Pair<Byte, Boolean> ->
+        userAnswer.values.fold(0) { f: Int , n: Pair<Byte, Boolean> ->
             if (n.second) f + 1 else f} *
                 (100 / questionBank.size)
 
 
-    fun isCorrectAnswer(userAnswer: Boolean): Int {
+    fun isCorrectAnswer(answer: Boolean): Int {
 
         val correctAnswer = questionBank[indexComputer.currentIndex].answer
 
@@ -51,11 +54,11 @@ class QuizViewModel : ViewModel() {
                 isCheater = false
                 R.string.judgment_toast
             }
-            userAnswerMap[questionBank[indexComputer.currentIndex]]?.second == true ->  {
+            userAnswer[questionBank[indexComputer.currentIndex]]?.second == true ->  {
                 setUserAnswer(1, true)
                 R.string.judgment_toast
             }
-            correctAnswer == userAnswer ->  {
+            correctAnswer == answer ->  {
                 setUserAnswer(1, false)
                 R.string.correct_toast
             }

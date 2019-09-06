@@ -1,4 +1,4 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.view
 
 import android.app.Activity
 import android.content.Context
@@ -10,6 +10,8 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
+import velord.bnrg.geoquiz.R
+import velord.bnrg.geoquiz.viewModel.CheatViewModel
 
 private const val TAG = "MainActivity"
 private const val EXTRA_ANSWER_IS_TRUE = "velord.bnrg.geoquiz.answer_is_true"
@@ -50,27 +52,27 @@ class CheatActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        Log.d(velord.bnrg.geoquiz.TAG, "onStart() called")
+        Log.d(TAG, "onStart() called")
     }
 
     override fun onResume() {
         super.onResume()
-        Log.d(velord.bnrg.geoquiz.TAG, "onResume() called")
+        Log.d(TAG, "onResume() called")
     }
 
     override fun onPause() {
         super.onPause()
-        Log.d(velord.bnrg.geoquiz.TAG, "onPause() called")
+        Log.d(TAG, "onPause() called")
     }
 
     override fun onStop() {
         super.onStop()
-        Log.d(velord.bnrg.geoquiz.TAG, "onStop() called")
+        Log.d(TAG, "onStop() called")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(velord.bnrg.geoquiz.TAG, "onDestroy() called")
+        Log.d(TAG, "onDestroy() called")
     }
 
     private val answerTextViewSetText = {

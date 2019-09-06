@@ -1,4 +1,4 @@
-package velord.bnrg.geoquiz
+package velord.bnrg.geoquiz.view
 
 import android.app.Activity
 import android.app.ActivityOptions
@@ -14,8 +14,12 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
-import velord.bnrg.geoquiz.Cheat.canCheat
-import velord.bnrg.geoquiz.Cheat.isCheater
+import velord.bnrg.geoquiz.R
+import velord.bnrg.geoquiz.model.Cheat
+import velord.bnrg.geoquiz.model.Cheat.canCheat
+import velord.bnrg.geoquiz.model.Cheat.isCheater
+import velord.bnrg.geoquiz.model.Direction
+import velord.bnrg.geoquiz.viewModel.QuizViewModel
 
 
 private const val TAG = "MainActivity"
@@ -34,14 +38,6 @@ class MainActivity : AppCompatActivity() {
 
     private val quizViewModel by lazy {
         ViewModelProviders.of(this).get(QuizViewModel::class.java)
-    }
-
-    private val updateQuestionTextView: (Direction, Int) -> Unit = { direction, step ->
-        //get index
-        val newIndex = quizViewModel.indexComputer.compute(direction, step)
-        //get resource id
-        val questionTextResId = quizViewModel.questionBank[newIndex].textResId
-        questionTextView.setText(questionTextResId)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -93,7 +89,8 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         Log.i(TAG, "onSaveInstanceState")
-        outState.putInt(KEY_INDEX,
+        outState.putInt(
+            KEY_INDEX,
             quizViewModel.indexComputer.currentIndex)
     }
 
@@ -118,6 +115,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private val updateQuestionTextView: (Direction, Int) -> Unit = { direction, step ->
+        //get index
+        val newIndex = quizViewModel.indexComputer.compute(direction, step)
+        //get resource id
+        val questionTextResId = quizViewModel.questionBank[newIndex].textResId
+        questionTextView.setText(questionTextResId)
+    }
+
     private val initAllViewsEvent = {
         falseButton.setOnClickListener { view: View ->
             checkAnswer(false)
@@ -128,7 +133,8 @@ class MainActivity : AppCompatActivity() {
         cheatButton.setOnClickListener {view ->
             val answerIsTrue = quizViewModel.questionBank[
                     quizViewModel.indexComputer.currentIndex].answer
-            val intent = CheatActivity.newIntent(this, answerIsTrue)
+            val intent =
+                CheatActivity.newIntent(this, answerIsTrue)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val option = ActivityOptions
@@ -167,9 +173,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val informUserScore = {
-        if (quizViewModel.userAnswerMap.size == quizViewModel.questionBank.size) {
-            val msg = quizViewModel.computeUserScoreInPercent()
-            Toast.makeText(this, "Your score is: $msg %", Toast.LENGTH_LONG).apply {
+        if (quizViewModel.userAnswer.size == quizViewModel.questionBank.size) {
+            val percent = quizViewModel.computeUserScoreInPercent()
+            Toast.makeText(this, "Your score is: $percent %",
+                Toast.LENGTH_LONG).apply {
                 setGravity(Gravity.TOP, 0, 150)
                 show()
             }
